@@ -223,7 +223,7 @@ plot_fun <- function(fit_input){
     
     max_new_cases_reported <- max((dat_new %>% filter(location_rep %in% states_imp))$new_cases_reported)
     p_freq_state <- p_freq_state +
-      geom_line(data = dat_new %>% filter(location_rep %in% states_imp), aes(x = epiweek, y = new_cases_reported/max_new_cases_reported, color = "Reported cases"), linetype = "dotted") +
+      geom_line(data = dat_new %>% filter(location_rep %in% states_imp), aes(x = epiweek, y = new_cases_reported/max_new_cases_reported, color = "Reported cases")) +
       scale_y_continuous(sec.axis = sec_axis(~.*max_new_cases_reported, name="cases"))
     
     # legend <- get_legend(p_freq_state)
