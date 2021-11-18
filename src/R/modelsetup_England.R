@@ -34,7 +34,7 @@ rm(list = ls())
 
 dat_og <- readRDS("data/processed/England_weekly_mob.rds")
 
-n_iters = 30000
+n_iters = 40000
 n_chains = 4
 n_thins = 10
 
