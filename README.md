@@ -1,5 +1,5 @@
 ## Context specific growth of the SARS-CoV-2 Delta variant
- Code and data for all the statistical analysis done for estimating the context specific growth of the SARS-CoV-2 Delta variant across England and US.
+ Code and data for all the statistical analysis done for estimating the context specific growth of the SARS-CoV-2 Delta variant across England.
 
 ### The packages used in the R scripts are: 
 dplyr, lubridate, ggplot2, rstan, reshape2, loo, posterior, bayesplot, gridExtra, data.table, cowplot, boot
