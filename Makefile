@@ -41,7 +41,7 @@ data/processed/covariates_to_include.rds: src/R/prepare_covariates_for_compariso
 $(FITS): data/processed/stan_fits/fit_model_comparison_%.rds: src/R/model_comparison_vars.R\
 	data/processed/England_weekly_processed.rds\
 	src/stan/growth_comparison.stan
-	Rscript $< $* 500 4 10
+	Rscript $< $* 50 4 10
 
 data/processed/model_comparison_results.rds: src/R/model_comparison.R\
 	data/processed/covariates_to_include.rds\

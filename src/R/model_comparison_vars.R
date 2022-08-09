@@ -67,6 +67,7 @@ result <- list(log_likelihood=log_like, beta=beta,
                ess_tails=ess_tails,
                ess_bulks=ess_bulks)
 
+dir.create(file.path("data/processed", "stan_fits"), showWarnings = FALSE)
 basefilename <- "data/processed/stan_fits/fit_model_comparison_"
 filename <- paste0(basefilename, covariate_id, ".rds")
 
