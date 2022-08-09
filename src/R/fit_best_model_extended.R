@@ -94,14 +94,11 @@ ess_bulks <- sum(sum_df$ess_bulk<400, na.rm = TRUE)
 ess_tails <- sum(sum_df$ess_tail<400, na.rm = TRUE)
 is_converged <- rhats == 0 & ess_bulks == 0 & ess_tails == 0
 
-saveRDS(fit, "data/processed/stan_fits/fit_best_extended.rds")
-
-
-# if(is_converged) {
-#   saveRDS(fit, "data/processed/stan_fits/fit_best_extended.rds")
-# } else {
-#   print("Not converged.")
-#   print(paste0("rhat = ", rhats))
-#   print(paste0("ess_bulk = ", ess_bulks))
-#   print(paste0("ess_tail = ", ess_tails))
-# }
+if(is_converged) {
+  saveRDS(fit, "data/processed/stan_fits/fit_best_extended.rds")
+} else {
+  print("Not converged.")
+  print(paste0("rhat = ", rhats))
+  print(paste0("ess_bulk = ", ess_bulks))
+  print(paste0("ess_tail = ", ess_tails))
+}
