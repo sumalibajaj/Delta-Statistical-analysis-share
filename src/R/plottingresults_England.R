@@ -27,7 +27,8 @@ dat_full <- merge(dat_full, dat_og %>% group_by(region) %>% summarize(location =
 dat_new <- dat_og %>% rename(region_rep = region)
 dat_new <- dat_og %>% rename(location_rep = location)
 
-plot_fun <- function(fit_input){
+# plot_fun <- function(fit_input){
+  fit_input <- fit_temp_sm_time_plot
   fit <- fit_input
   region_rep <- rep(unique(dat_og$region), each = length(unique(dat_og$epiweek)))
   location_rep <- rep(unique(dat_og$location), each = length(unique(dat_og$epiweek)))
@@ -75,14 +76,14 @@ plot_fun <- function(fit_input){
   dat_pred <- cbind(location_rep, dat_pred)
   
   p_rho_all <- ggplot(data = dat_pred, aes(x = epiweek)) +
-    geom_point(aes(y = mean), color = "grey") +
-    geom_line(aes(y = mean), color = "grey") +
+    geom_point(aes(y = mean), color = "grey50") +
+    geom_line(aes(y = mean), color = "grey50") +
     # facet_wrap(~ region_rep, nrow = 1) +
     facet_wrap(~location_rep) +
-    geom_ribbon(aes(x = epiweek, ymin = CI95_lower, ymax = CI95_upper), fill = "grey", alpha = 0.3) +
+    geom_ribbon(aes(x = epiweek, ymin = CI95_lower, ymax = CI95_upper), fill = "grey50", alpha = 0.3) +
     # geom_vline(xintercept = imp_epiweek, color = "grey") +
     theme_bw() +
-    labs(x = "2021 Epiweek", y = "weekly growth") +
+    labs(x = "2021 Epiweek", y = "Relative growth (log odds)") +
     theme(text = element_text(size=15),
           strip.background = element_rect(
             color="white", fill="white", size=1.5, linetype="solid"),
@@ -91,15 +92,15 @@ plot_fun <- function(fit_input){
   p_rho_all
   
   p_rho <- ggplot(data = dat_pred %>% filter(location_rep %in% states_imp), aes(x = epiweek)) +
-    geom_point(aes(y = mean), color = "grey") +
-    geom_line(aes(y = mean), color = "grey") +
+    geom_point(aes(y = mean), color = "grey50") +
+    geom_line(aes(y = mean), color = "grey50") +
     # facet_wrap(~ region_rep, nrow = 1) +
     facet_grid(cols = vars(location_rep)) +
-    geom_ribbon(aes(x = epiweek, ymin = CI95_lower, ymax = CI95_upper), fill = "grey", alpha = 0.3) +
+    geom_ribbon(aes(x = epiweek, ymin = CI95_lower, ymax = CI95_upper), fill = "grey50", alpha = 0.3) +
     # geom_vline(xintercept = imp_epiweek, color = "grey") +
     theme_bw() +
-    labs(x = "", y = "relative growth") +
-    theme(text = element_text(size=15),
+    labs(x = "", y = "Relative growth (log odds)") +
+    theme(text = element_text(size=17),
           strip.background = element_rect(
             color="white", fill="white", size=1.5, linetype="solid"
           ),
@@ -183,6 +184,41 @@ plot_fun <- function(fit_input){
       ylim(0,1)
 
     p_freq_state_all
+##########################################################################################
+##########################################################################################    
+##########################################################################################
+        gr_extraplot <- merge(dat_new, dat_pred, by.x = c("region", "epiweek", "location_rep"), 
+                          by.y = c("region_rep", "epiweek", "location_rep"))
+    gr_extraplot <- merge(dat_new, p, by.x = c("region", "epiweek", "location_rep", "NUTS1"), 
+                          by.y = c("region_rep", "time", "location_rep", "NUTS1"))
+    
+    gr_extraplot <- gr_extraplot %>% group_by(location_rep) %>%
+      mutate(av_mob_utla = mean(relative_self_mobility)) %>%
+      ungroup() %>%
+      group_by(NUTS1) %>%
+      mutate(av_mob_NUTS1 = mean(relative_self_mobility)) %>%
+      ungroup() %>%
+      mutate(above_av = ifelse(av_mob_utla>=av_mob_NUTS1, 1, 0))
+    
+    ggplot(data = gr_extraplot, aes(x = relative_self_mobility, y = mean))+
+      geom_point() +
+      geom_smooth(method = lm)+
+      facet_wrap(~NUTS1)
+    
+    ggplot(data = gr_extraplot, aes(y = mean, x = epiweek, group = location_rep))+
+      geom_line(aes(color = relative_self_mobility)) +
+      facet_wrap(~NUTS1)
+    
+    ggplot(data = gr_extraplot, aes(y = mean, x = epiweek, group = location_rep))+
+      geom_line(aes(color = above_av)) +
+      facet_wrap(~NUTS1)
+    
+    
+    a <- gr_extraplot %>% filter(NUTS1 == "East_Midlands") %>% arrange(epiweek, mean)
+##########################################################################################
+##########################################################################################    
+##########################################################################################
+    
     
     max_new_cases_reported_all <- max(dat_new$new_cases_reported)
     p_freq_state_all <- p_freq_state_all +
@@ -203,15 +239,15 @@ plot_fun <- function(fit_input){
       # facet_wrap(~ region_rep, nrow = 1) +
       facet_grid(cols = vars(location_rep)) +
 
-      labs(y = "proportion", x = "",
+      labs(y = "Proportion", x = "",
            color = "Legend") +
       theme_bw() +
       scale_color_manual(values = colors_fig)+
       scale_fill_manual(values = colors_fig) +
       guides(fill=FALSE) +
-      theme(text = element_text(size=15),
+      theme(text = element_text(size=17),
             legend.title = element_blank(),
-            legend.text = element_text(size = 13),
+            legend.text = element_text(size = 17),
             strip.background = element_rect(
               color="white", fill="white", size=1.5, linetype="solid"
             ),
@@ -224,7 +260,7 @@ plot_fun <- function(fit_input){
     max_new_cases_reported <- max((dat_new %>% filter(location_rep %in% states_imp))$new_cases_reported)
     p_freq_state <- p_freq_state +
       geom_line(data = dat_new %>% filter(location_rep %in% states_imp), aes(x = epiweek, y = new_cases_reported/max_new_cases_reported, color = "Reported cases")) +
-      scale_y_continuous(sec.axis = sec_axis(~.*max_new_cases_reported, name="cases"))
+      scale_y_continuous(sec.axis = sec_axis(~.*max_new_cases_reported, name="Cases"))
     
     # legend <- get_legend(p_freq_state)
     
@@ -300,9 +336,11 @@ plot_fun <- function(fit_input){
           legend.position="bottom",
           strip.background = element_rect(
             color="white", fill="white", size=1.5, linetype="solid"),
-          strip.text.x = element_text(size = 8))+
+          strip.text.x = element_text(size = 8),
+          axis.text.y = element_text(size=10))+
     xlim(10,25)+
-    ylim(0,1)
+    ylim(0,1)+
+    scale_y_continuous(breaks=c(0,0.5,1))
   
   p_post1
   
@@ -356,34 +394,34 @@ plot_fun <- function(fit_input){
   
   final1 <- plot_grid(p_post1, p_prior1, labels = c('A', 'B'), ncol = 1)
 
-  return(list(final, final1, p_freq_state_all, p_rho_all))
-}    
-  
-output <- plot_fun(fit_temp_sm_time_plot)
-
-
-pdf(file = "outputs/results_England.pdf", # The directory you want to save the file in
-    width = 17, # The width of the plot in inches
-    height = 8) # The height of the plot in inches
-
-output[[1]]
-
-dev.off()
-
-pdf(file = "outputs/results_England_supp.pdf", # The directory you want to save the file in
-    width = 18, # The width of the plot in inches
-    height = 8) # The height of the plot in inches
-
-output[[3]]
-output[[4]]
-
-dev.off()
-
-pdf(file = "outputs/results_England_supp1.pdf", # The directory you want to save the file in
-    width = 18, # The width of the plot in inches
-    height = 12) # The height of the plot in inches
-
-output[[2]]
-
-dev.off()
-
+#   return(list(final, final1, p_freq_state_all, p_rho_all))
+# }    
+#   
+# output <- plot_fun(fit_temp_sm_time_plot)
+# 
+# 
+# pdf(file = "outputs/results_England.pdf", # The directory you want to save the file in
+#     width = 17, # The width of the plot in inches
+#     height = 8) # The height of the plot in inches
+# 
+# output[[1]]
+# 
+# dev.off()
+# 
+# pdf(file = "outputs/results_England_supp.pdf", # The directory you want to save the file in
+#     width = 18, # The width of the plot in inches
+#     height = 8) # The height of the plot in inches
+# 
+# output[[3]]
+# output[[4]]
+# 
+# dev.off()
+# 
+# pdf(file = "outputs/results_England_supp1.pdf", # The directory you want to save the file in
+#     width = 18, # The width of the plot in inches
+#     height = 12) # The height of the plot in inches
+# 
+# output[[2]]
+# 
+# dev.off()
+# 
