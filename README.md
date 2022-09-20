@@ -14,7 +14,8 @@ dplyr, lubridate, ggplot2, rstan, reshape2, loo, posterior, bayesplot, gridExtra
 Due to data sharing agreements, the data on relative self mobility has not been made available, and instead a column with random numbers has been used. Hence the results will be different to those reported in the paper.
 
 ### Session Info
-```R version 4.0.4 (2021-02-15)
+```
+R version 4.0.4 (2021-02-15)
 Platform: x86_64-apple-darwin17.0 (64-bit)
 Running under: macOS Big Sur 10.16
 
